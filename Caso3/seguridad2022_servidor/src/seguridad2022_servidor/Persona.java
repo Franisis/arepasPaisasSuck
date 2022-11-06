@@ -13,7 +13,10 @@ import java.security.PublicKey;
  * references :
  * https://yoandroide.xyz/intercambio-de-claves-con-diffie-hellman-en-java/*/
 public class Persona extends Thread {
+	
 
+	public static final int PUERTO = 3400;
+	public static final String SERVIDOR = "localhost"
     private int idcliente;
     private PrivateKey prk;
     private PublicKey puk;
@@ -81,7 +84,30 @@ public class Persona extends Thread {
 
     public void run()
     {
-
+    	generateKeys();
+    	Socket socket = null;
+    	PrintWriter escritor = null;
+    	BUfferedReador lector = null;
+    	
+    	try {
+    		socket = new Socket(SERVIDOR,PUERTO);
+    		escritor = new PrintWriter(socket.getOutputStream()),true)
+			lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    	BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+    	
+    	//protocolo
+    	boolean ejecutar = true;
+    	
+    	
+    	
+    	//fin protocolo
+    	stdIn.close();
+    	escritor.close();
+    	lector.close();
+    	socket.close();
     }
 
 }
