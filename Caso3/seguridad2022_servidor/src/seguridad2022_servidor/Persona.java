@@ -31,7 +31,7 @@ public class Persona extends Thread {
     private int idcliente;
     private PrivateKey prk;
     private PublicKey puk;
-    private static PublicKey receivedPublicKey;
+    private PublicKey receivedPublicKey;
     
     private String secretM;
     private  byte[] encriptMensaje;
@@ -127,8 +127,7 @@ public class Persona extends Thread {
     
     
     public void protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
-    	int entrada = 0;
-    	boolean ejecutando = true;
+    	receivedPublicKey = sf.read_kplus("datos_asim_srv.pub","concurrent server " + idcliente + ": ");
     	escritor.println("SECURE INIT");
     	
         
@@ -197,7 +196,7 @@ public class Persona extends Thread {
         byte[] byteRecibidoAchemak = str2byte(respAcheMak);
         byte[] byteRecibidoivRecibido = str2byte(ivRecibido);
         IvParameterSpec ivSpec1 = new IvParameterSpec(byteRecibidoivRecibido);
-        byte[] decifrado = sf.sdec(byteRecibidoivRecibido, sk_mac, ivSpec1);
+        byte[] decifrado = sf.sdec(byteRecibidoConsulta, sk_mac, ivSpec1);
         boolean verificar = sf.checkInt( decifrado,sk_mac,byteRecibidoAchemak);
         if (verificar)
         {
@@ -225,10 +224,7 @@ public class Persona extends Thread {
 		return ret;
 	}
 
-    public static synchronized void receivePublicKey(PublicKey pk)
-    {
-        receivedPublicKey = pk;
-    }
+   
 
     public String byte2str( byte[] b )
 	{	
