@@ -87,7 +87,8 @@ public class Persona extends Thread {
     	generateKeys();
     	Socket socket = null;
     	PrintWriter escritor = null;
-    	BUfferedReador lector = null;
+    	BufferedReader lector = null;
+    	
     	
     	try {
     		socket = new Socket(SERVIDOR,PUERTO);
@@ -123,7 +124,14 @@ public class Persona extends Thread {
     	boolean ejecutando = true;
     	pOut.println("SECURE INIT");
     	
+    	
     	//paso 2
+    	
+    	entrada = BufferedReader.readline();
+    	int G = Integer.valueOf(entrada);
+    	
+    	
+    	
     	
     	
     }

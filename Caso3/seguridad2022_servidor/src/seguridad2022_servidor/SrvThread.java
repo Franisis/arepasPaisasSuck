@@ -65,7 +65,7 @@ public class SrvThread extends Thread {
 			PublicKey publicaServidor = f.read_kplus("datos_asim_srv.pub",dlg);
 			PrintWriter ac = new PrintWriter(sc.getOutputStream() , true);
 			BufferedReader dc = new BufferedReader(new InputStreamReader(sc.getInputStream()));
-				    	
+			
 			linea = dc.readLine();
 			System.out.println(dlg + "reading request: " + linea);
     		
