@@ -3,6 +3,12 @@ package seguridad2022_servidor;
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.SecretKeySpec;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
@@ -16,7 +22,7 @@ public class Persona extends Thread {
 	
 
 	public static final int PUERTO = 3400;
-	public static final String SERVIDOR = "localhost"
+	public static final String SERVIDOR = "localhost";
     private int idcliente;
     private PrivateKey prk;
     private PublicKey puk;
@@ -92,7 +98,7 @@ public class Persona extends Thread {
     	
     	try {
     		socket = new Socket(SERVIDOR,PUERTO);
-    		escritor = new PrintWriter(socket.getOutputStream()),true)
+    		escritor = new PrintWriter(socket.getOutputStream(),true);
 			lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     	} catch (IOException e) {
     		e.printStackTrace();
@@ -106,28 +112,59 @@ public class Persona extends Thread {
     	
     	
     	//paso 2
-    	fromserver = lector.readLine();
-    	int G = Integer.valueOf(fromserver);
+    	try {
+            fromserver = lector.readLine();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        try {
+            String fs1 = lector.readLine();
+            int g = Integer.valueOf(fs1);
+            String fs2 = lector.readLine();
+            int p = Integer.valueOf(fs2);
+            String fs3 = lector.readLine();
+            int gx = Integer.valueOf(fs3);
     	
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+    	
+        
+
+    	int p = Integer.valueOf(fromserver);
+
+        int gx = Integer.valueOf(fromserver);
     	
     	
     	//fin protocolo
-    	stdIn.close();
-    	escritor.close();
-    	lector.close();
-    	socket.close();
+        escritor.close();
+    	try {
+            lector.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    	try {
+            socket.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     
     public void protocoloCliente(BufferedReader oIn,PrintWriter pOut) {
-    	String entrada = "";
+    	int entrada = 0;
     	boolean ejecutando = true;
     	pOut.println("SECURE INIT");
     	
     	
     	//paso 2
     	
-    	entrada = BufferedReader.readline();
+    	//entrada = BufferedReader.read();
     	int G = Integer.valueOf(entrada);
     	
     	
