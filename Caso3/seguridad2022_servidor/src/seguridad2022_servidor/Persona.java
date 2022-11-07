@@ -30,12 +30,11 @@ public class Persona extends Thread {
 	public static final int PUERTO = 4300;
 	public static final String SERVIDOR = "localhost";
     private int idcliente;
-    private PrivateKey prk;
+    
     private PublicKey puk;
     private PublicKey receivedPublicKey;
     
-    private String secretM;
-    private  byte[] encriptMensaje;
+    
     private SecurityFunctions sf;
     private CyclicBarrier cb;
     
@@ -52,20 +51,7 @@ public class Persona extends Thread {
         return puk;
     }
 
-    public void generateKeys()
-    {
-        try {
-            final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DH");
-            keyPairGenerator.initialize(1024);
-
-            final KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-            prk = keyPair.getPrivate();
-            puk  = keyPair.getPublic();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }   
-    }
+    
 
     
     public void run() 
@@ -93,16 +79,6 @@ public class Persona extends Thread {
         {
             e.printStackTrace();
         }
-
-        //paso ????
-    	SecretKey llavefirma  ;
-        SecretKey llaveCifrado  ;
-        
-        //SecretKey sk_srv = f.csk1(str_llave);
-		//SecretKey sk_mac = f.csk2(str_llave);
-			
-        byte[] iv2 = generateIvBytes();
-        String str_iv2 = byte2str(iv2);
 
     	
     	//fin protocolo
