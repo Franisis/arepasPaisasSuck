@@ -18,6 +18,7 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.concurrent.CyclicBarrier;
 
 /* Esta clase contiene toda la lógica y métodos
  * necesarios para generar e intercambiar llaves 
@@ -26,7 +27,7 @@ import java.security.SecureRandom;
 public class Persona extends Thread {
 	
 
-	public static final int PUERTO = 3400;
+	public static final int PUERTO = 4300;
 	public static final String SERVIDOR = "localhost";
     private int idcliente;
     private PrivateKey prk;
@@ -36,13 +37,14 @@ public class Persona extends Thread {
     private String secretM;
     private  byte[] encriptMensaje;
     private SecurityFunctions sf;
-
+    private CyclicBarrier cb;
     
 
     
 
-    public Persona(int i) {
+    public Persona(int i,CyclicBarrier barrera) {
         this.idcliente = i;
+        cb = barrera;
     }
 
     public PublicKey getPublicKey()
@@ -190,6 +192,7 @@ public class Persona extends Thread {
         IvParameterSpec ivSpec1 = new IvParameterSpec(byteRecibidoivRecibido);
         byte[] decifrado = sf.sdec(byteRecibidoConsulta, sk_mac, ivSpec1);
         boolean verificar = sf.checkInt( decifrado,sk_mac,byteRecibidoAchemak);
+        //Paso 13
         if (verificar)
         {
             escritor.println("OK");
@@ -199,6 +202,7 @@ public class Persona extends Thread {
         }
 
 
+        cb.await();
     }
 
     
