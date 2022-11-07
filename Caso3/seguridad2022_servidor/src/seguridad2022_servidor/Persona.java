@@ -2,17 +2,22 @@ package seguridad2022_servidor;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 
 /* Esta clase contiene toda la lógica y métodos
  * necesarios para generar e intercambiar llaves 
@@ -26,10 +31,13 @@ public class Persona extends Thread {
     private int idcliente;
     private PrivateKey prk;
     private PublicKey puk;
-    private PublicKey receivedPublicKey;
-    private byte[] secretKey;
+    private static PublicKey receivedPublicKey;
+    
     private String secretM;
     private  byte[] encriptMensaje;
+    private SecurityFunctions sf;
+
+    
 
     
 
@@ -57,38 +65,8 @@ public class Persona extends Thread {
         }   
     }
 
-    public void encriptMensaje(final String message)
-    {
-        try {
-            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
-            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
-
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-
-            final byte[] encryptedMessage = cipher.doFinal(message.getBytes());
-            
-            encriptMensaje = encryptedMessage;
-            //persona.receiveAndDecryptMessage(encryptedMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void receiveAndDecryptMessage(final byte[] encryptedMessage)
-    {
-        try {
-            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
-            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
-
-            cipher.init(Cipher.DECRYPT_MODE, keySpec);
-
-            secretM = new String(cipher.doFinal(encryptedMessage));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void run()
+    
+    public void run() 
     {
     	generateKeys();
     	Socket socket = null;
@@ -112,32 +90,24 @@ public class Persona extends Thread {
     	
     	
     	//paso 2
-    	try {
-            fromserver = lector.readLine();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
         try {
-            String fs1 = lector.readLine();
-            int g = Integer.valueOf(fs1);
-            String fs2 = lector.readLine();
-            int p = Integer.valueOf(fs2);
-            String fs3 = lector.readLine();
-            int gx = Integer.valueOf(fs3);
-    	
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+    	protocoloCliente(lector, escritor);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
-    	
+        //paso ????
+    	SecretKey llavefirma  ;
+        SecretKey llaveCifrado  ;
         
+        //SecretKey sk_srv = f.csk1(str_llave);
+		//SecretKey sk_mac = f.csk2(str_llave);
+			
+        byte[] iv2 = generateIvBytes();
+        String str_iv2 = byte2str(iv2);
 
-    	int p = Integer.valueOf(fromserver);
-
-        int gx = Integer.valueOf(fromserver);
-    	
     	
     	//fin protocolo
         escritor.close();
@@ -156,21 +126,124 @@ public class Persona extends Thread {
     }
     
     
-    public void protocoloCliente(BufferedReader oIn,PrintWriter pOut) {
+    public void protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
     	int entrada = 0;
     	boolean ejecutando = true;
-    	pOut.println("SECURE INIT");
+    	escritor.println("SECURE INIT");
     	
-    	
+        
+
     	//paso 2
+        String fs1 = lector.readLine();
+        int g = Integer.parseInt(fs1);
+        String fs2 = lector.readLine();
+        int p = Integer.parseInt(fs2);
+        String fs3 = lector.readLine();
+        int gx = Integer.parseInt(fs3);
+
+        //Esto es la firma(?)
+        String esto = lector.readLine();
+        byte[] firma = str2byte(esto);
+        if (sf.checkSignature(receivedPublicKey, firma, esto))
+        {
+            escritor.println("OK");
+
+        }else{
+            escritor.println("ERROR");
+        }
+        
+        
+        
+       
+    
     	
     	//entrada = BufferedReader.read();
-    	int G = Integer.valueOf(entrada);
-    	
-    	
-    	
-    	
-    	
+        String biCalculado = G2X(BigInteger.valueOf(g),BigInteger.valueOf(idcliente),BigInteger.valueOf(p)).toString();
+        escritor.println(biCalculado);
+
+        //paso 3 disque llave maestra
+        String llaveComun = G2X(BigInteger.valueOf(gx), BigInteger.valueOf(idcliente), BigInteger.valueOf(p)).toString();
+
+        SecretKey sk_srv = sf.csk1(llaveComun);
+        SecretKey sk_mac = sf.csk2(llaveComun);
+        
+        byte[] iv2 = generateIvBytes();
+        String str_iv2 = byte2str(iv2);
+        IvParameterSpec ivSpec2 = new IvParameterSpec(iv2);
+
+        //Esto es lo que tenemos que cirfrar
+        byte[] num = Integer.toString(idcliente).getBytes();
+
+        byte[] consulta = sf.senc(num, sk_mac, ivSpec2, Integer.toString(idcliente));
+
+        //achemak
+        byte[] mac = sf.hmac(num, sk_mac);
+
+        String consult = byte2str(consulta);
+        String hmac = byte2str(mac);
+
+        escritor.println(consult);
+        escritor.println(hmac);
+        escritor.println(str_iv2);
+        
+        
+        //paso 12  ??????? como decifro ayuda
+        String verificacion =lector.readLine();
+        String reConsulta = lector.readLine();
+        String respAcheMak = lector.readLine();
+        String ivRecibido = lector.readLine();
+        
+        byte[] byteRecibidoConsulta = str2byte(reConsulta);
+        byte[] byteRecibidoAchemak = str2byte(respAcheMak);
+        byte[] byteRecibidoivRecibido = str2byte(ivRecibido);
+        IvParameterSpec ivSpec1 = new IvParameterSpec(byteRecibidoivRecibido);
+        byte[] decifrado = sf.sdec(byteRecibidoivRecibido, sk_mac, ivSpec1);
+        boolean verificar = sf.checkInt( decifrado,sk_mac,byteRecibidoAchemak);
+        if (verificar)
+        {
+            escritor.println("Hubo ok \n");
+        } else 
+        {
+            escritor.println("Hubo ERROR");
+        }
+
+
     }
+
+    
+    private BigInteger G2X(BigInteger base, BigInteger exponente, BigInteger modulo) {
+        return base.modPow(exponente,modulo);
+    }
+
+    public byte[] str2byte( String ss)
+	{	
+		// Encapsulamiento con hexadecimales
+		byte[] ret = new byte[ss.length()/2];
+		for (int i = 0 ; i < ret.length ; i++) {
+			ret[i] = (byte) Integer.parseInt(ss.substring(i*2,(i+1)*2), 16);
+		}
+		return ret;
+	}
+
+    public static synchronized void receivePublicKey(PublicKey pk)
+    {
+        receivedPublicKey = pk;
+    }
+
+    public String byte2str( byte[] b )
+	{	
+		// Encapsulamiento con hexadecimales
+		String ret = "";
+		for (int i = 0 ; i < b.length ; i++) {
+			String g = Integer.toHexString(((char)b[i])&0x00ff);
+			ret += (g.length()==1?"0":"") + g;
+		}
+		return ret;
+	}
+    private byte[] generateIvBytes() {
+	    byte[] iv = new byte[16];
+	    new SecureRandom().nextBytes(iv);
+	    return iv;
+	}
 
 }

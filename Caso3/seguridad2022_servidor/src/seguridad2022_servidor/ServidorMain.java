@@ -50,7 +50,7 @@ public class ServidorMain {
 				System.out.println(ID + " delegate " + idThread + ": accepting client - done");
 				int pos = idThread % 3;
 				int mod = options.charAt(pos) - '0';
-				SrvThread d = new SrvThread(sc,idThread,mod);
+				SrvThread d = new SrvThread(sc,idThread,2);
 				idThread++;
 				d.start();
 			} catch (IOException e) {
