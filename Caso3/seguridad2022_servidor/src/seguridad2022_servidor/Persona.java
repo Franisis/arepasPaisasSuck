@@ -96,10 +96,17 @@ public class Persona extends Thread {
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
-    	BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
     	
     	//protocolo
-    	boolean ejecutar = true;
+    	String fromserver = "";
+    	//paso 1
+    	
+    	escritor.println("SECURE INIT");
+    	
+    	
+    	//paso 2
+    	fromserver = lector.readLine();
+    	int G = Integer.valueOf(fromserver);
     	
     	
     	
@@ -108,6 +115,17 @@ public class Persona extends Thread {
     	escritor.close();
     	lector.close();
     	socket.close();
+    }
+    
+    
+    public void protocoloCliente(BufferedReader oIn,PrintWriter pOut) {
+    	String entrada = "";
+    	boolean ejecutando = true;
+    	pOut.println("SECURE INIT");
+    	
+    	//paso 2
+    	
+    	
     }
 
 }
