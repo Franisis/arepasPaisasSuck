@@ -68,7 +68,7 @@ public class Persona extends Thread {
     
     public void run() 
     {
-    	generateKeys();
+    	
     	Socket socket = null;
     	PrintWriter escritor = null;
     	BufferedReader lector = null;
@@ -83,13 +83,7 @@ public class Persona extends Thread {
     	}
     	
     	//protocolo
-    	String fromserver = "";
-    	//paso 1
     	
-    	escritor.println("SECURE INIT");
-    	
-    	
-    	//paso 2
         try {
     	protocoloCliente(lector, escritor);
         }
@@ -128,11 +122,12 @@ public class Persona extends Thread {
     
     public void protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
     	receivedPublicKey = sf.read_kplus("datos_asim_srv.pub","concurrent server " + idcliente + ": ");
-    	escritor.println("SECURE INIT");
+    	//Paso 1
+        escritor.println("SECURE INIT");
     	
         
 
-    	//paso 2
+    	//Paso 4
         String fs1 = lector.readLine();
         int g = Integer.parseInt(fs1);
         String fs2 = lector.readLine();
@@ -143,6 +138,7 @@ public class Persona extends Thread {
         //Esto es la firma(?)
         String esto = lector.readLine();
         byte[] firma = str2byte(esto);
+        //Paso 5
         if (sf.checkSignature(receivedPublicKey, firma, esto))
         {
             escritor.println("OK");
@@ -152,15 +148,12 @@ public class Persona extends Thread {
         }
         
         
-        
-       
     
-    	
-    	//entrada = BufferedReader.read();
-        String biCalculado = G2X(BigInteger.valueOf(g),BigInteger.valueOf(idcliente),BigInteger.valueOf(p)).toString();
+    	//Paso 6a
+    	String biCalculado = G2X(BigInteger.valueOf(g),BigInteger.valueOf(idcliente),BigInteger.valueOf(p)).toString();
         escritor.println(biCalculado);
 
-        //paso 3 disque llave maestra
+        //Paso 7a 
         String llaveComun = G2X(BigInteger.valueOf(gx), BigInteger.valueOf(idcliente), BigInteger.valueOf(p)).toString();
 
         SecretKey sk_srv = sf.csk1(llaveComun);
@@ -170,12 +163,11 @@ public class Persona extends Thread {
         String str_iv2 = byte2str(iv2);
         IvParameterSpec ivSpec2 = new IvParameterSpec(iv2);
 
-        //Esto es lo que tenemos que cirfrar
+        //Paso 8
         byte[] num = Integer.toString(idcliente).getBytes();
 
         byte[] consulta = sf.senc(num, sk_mac, ivSpec2, Integer.toString(idcliente));
 
-        //achemak
         byte[] mac = sf.hmac(num, sk_mac);
 
         String consult = byte2str(consulta);
@@ -186,7 +178,7 @@ public class Persona extends Thread {
         escritor.println(str_iv2);
         
         
-        //paso 12  ??????? como decifro ayuda
+        //Paso 12  ??????? como decifro ayuda
         String verificacion =lector.readLine();
         String reConsulta = lector.readLine();
         String respAcheMak = lector.readLine();
@@ -200,10 +192,10 @@ public class Persona extends Thread {
         boolean verificar = sf.checkInt( decifrado,sk_mac,byteRecibidoAchemak);
         if (verificar)
         {
-            escritor.println("Hubo ok \n");
+            escritor.println("OK");
         } else 
         {
-            escritor.println("Hubo ERROR");
+            escritor.println("ERROR");
         }
 
 
