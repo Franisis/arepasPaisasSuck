@@ -37,8 +37,7 @@ public class Persona extends Thread {
     
     private SecurityFunctions sf;
     private CyclicBarrier cb;
-    
-
+    private static long tiempocifrado = 0;
     
 
     public Persona(int i,CyclicBarrier barrera) {
@@ -117,7 +116,11 @@ public class Persona extends Thread {
         String esto = lector.readLine();
         byte[] firma = str2byte(esto);
         //Paso 5
-        if (sf.checkSignature(receivedPublicKey, firma, esto))
+        //verificacion de la firma
+        boolean verificacion1 = sf.checkSignature(receivedPublicKey, firma, esto);
+
+
+        if (verificacion1)
         {
             escritor.println("OK");
 
@@ -132,6 +135,7 @@ public class Persona extends Thread {
         escritor.println(biCalculado);
 
         //Paso 7a 
+        //calcular G de y
         String llaveComun = G2X(BigInteger.valueOf(gx), BigInteger.valueOf(idcliente), BigInteger.valueOf(p)).toString();
 
         SecretKey sk_srv = sf.csk1(llaveComun);
@@ -144,8 +148,11 @@ public class Persona extends Thread {
         //Paso 8
         byte[] num = Integer.toString(idcliente).getBytes();
 
+        //cifrar consulta
         byte[] consulta = sf.senc(num, sk_mac, ivSpec2, Integer.toString(idcliente));
 
+        
+        //codigo de autenticacion
         byte[] mac = sf.hmac(num, sk_mac);
 
         String consult = byte2str(consulta);
