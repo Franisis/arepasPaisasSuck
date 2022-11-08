@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.CyclicBarrier;
 
-import javafx.concurrent.Task;
+
 
 public class MainEnvios {
 
@@ -23,7 +23,7 @@ public class MainEnvios {
         CyclicBarrier cb = new CyclicBarrier(numClientes,new Runnable(){
             @Override
             public void run(){
-                System.out.println("Todos los clientes terminarons su ejecuccion correctamente");
+                System.out.println("Todos los clientes terminaron su ejecuccion correctamente");
             }
         });
         for (int i =0; numClientes>i; i++)

@@ -27,7 +27,7 @@ import java.util.concurrent.CyclicBarrier;
 public class Persona extends Thread {
 	
 
-	public static final int PUERTO = 4300;
+	public static final int PUERTO = 4030;
 	public static final String SERVIDOR = "localhost";
     private int idcliente;
     
@@ -62,7 +62,9 @@ public class Persona extends Thread {
     	
     	
     	try {
+            System.out.println(socket);
     		socket = new Socket(SERVIDOR,PUERTO);
+            System.out.println(socket);
     		escritor = new PrintWriter(socket.getOutputStream(),true);
 			lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     	} catch (IOException e) {
@@ -98,11 +100,11 @@ public class Persona extends Thread {
     
     
     public void protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
-    	receivedPublicKey = sf.read_kplus("datos_asim_srv.pub","concurrent server " + idcliente + ": ");
+    	receivedPublicKey = sf.read_kplus("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/bin/datos_asim_srv.pub", "concurrent server " + idcliente + ": ");
     	//Paso 1
         escritor.println("SECURE INIT");
     	
-        
+        System.out.println(receivedPublicKey);
 
     	//Paso 4
         String fs1 = lector.readLine();
