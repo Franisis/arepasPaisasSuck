@@ -34,10 +34,21 @@ public class Persona extends Thread {
     private PublicKey puk;
     private PublicKey receivedPublicKey;
     
+    private long IcifrarConsulta;
+    private long FcifrarConsulta;
+    private long TcifrarConsulta;
+    private long IgenerarAut;
+    private long FgenerarAut;
+    private long TgenerarAut;
+    private long IverificaFirma;
+    private long FverificaFirma;
+    private long TverificarFirma;
+    private long IcalG;
+    private long FcalG;
+    private long TcalG;
     
     private SecurityFunctions sf;
     private CyclicBarrier cb;
-    private static long tiempocifrado = 0;
     
 
     public Persona(int i,CyclicBarrier barrera) {
@@ -94,6 +105,7 @@ public class Persona extends Thread {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        imprimirTiempos();
     }
     
     
@@ -117,8 +129,11 @@ public class Persona extends Thread {
         byte[] firma = str2byte(esto);
         //Paso 5
         //verificacion de la firma
+        IverificaFirma = System.currentTimeMillis();
         boolean verificacion1 = sf.checkSignature(receivedPublicKey, firma, esto);
-
+        FverificaFirma = System.currentTimeMillis();
+        TverificarFirma = FverificaFirma-IverificaFirma;
+        
 
         if (verificacion1)
         {
@@ -136,7 +151,10 @@ public class Persona extends Thread {
 
         //Paso 7a 
         //calcular G de y
+        IcalG = System.currentTimeMillis();
         String llaveComun = G2X(BigInteger.valueOf(gx), BigInteger.valueOf(idcliente), BigInteger.valueOf(p)).toString();
+        FcalG = System.currentTimeMillis();
+        TcalG = FcalG - IcalG;
 
         SecretKey sk_srv = sf.csk1(llaveComun);
         SecretKey sk_mac = sf.csk2(llaveComun);
@@ -149,11 +167,16 @@ public class Persona extends Thread {
         byte[] num = Integer.toString(idcliente).getBytes();
 
         //cifrar consulta
+        IcifrarConsulta = System.currentTimeMillis();
         byte[] consulta = sf.senc(num, sk_mac, ivSpec2, Integer.toString(idcliente));
-
+        FcifrarConsulta = System.currentTimeMillis();
+        TcifrarConsulta = FcifrarConsulta - IcifrarConsulta;
         
         //codigo de autenticacion
+        IgenerarAut = System.currentTimeMillis();
         byte[] mac = sf.hmac(num, sk_mac);
+        FgenerarAut = System.currentTimeMillis();
+        TgenerarAut = FgenerarAut - IgenerarAut;
 
         String consult = byte2str(consulta);
         String hmac = byte2str(mac);
@@ -203,7 +226,14 @@ public class Persona extends Thread {
 		return ret;
 	}
 
-   
+   public void imprimirTiempos(){
+    int id = this.idcliente;
+    System.out.println("El tiempo de cifrado de la consulta para el cliente de id: "+ id +"es: "+ TcifrarConsulta);
+    System.out.println("El tiempo para generar el codigo de autenticacion para el cliente de id: "+ id +"es: "+ TgenerarAut);
+    System.out.println("El tiempo para la verificacion de la firma para el cliente de id: "+ id +"es: "+ TverificarFirma);
+    System.out.println("El tiempo para calcular G^y para el cliente de id: "+ id +"es: "+ TcalG);
+
+   }
 
     public String byte2str( byte[] b )
 	{	
