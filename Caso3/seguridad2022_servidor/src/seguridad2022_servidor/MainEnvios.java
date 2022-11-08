@@ -23,7 +23,11 @@ public class MainEnvios {
         CyclicBarrier cb = new CyclicBarrier(numClientes,new Runnable(){
             @Override
             public void run(){
-                System.out.println("Todos los clientes terminarons su ejecuccion correctamente");
+                System.out.println("Todos los clientes terminaron su ejecuccion correctamente");
+                System.out.println("Tiempo gastado en cifrar las consultas: " +Persona.getTcifrarConsulta()/1000 + " segundos");
+                System.out.println("Tiempo gastado en generar codigos hmac: "+Persona.getTgenerarAuth()/1000 + " segundos");
+                System.out.println("Tiempo gastado en verificar firmas: "+Persona.getTverificarFirma()/1000 + " segundos");
+                System.out.println("Tiempo gastado en calcular G a la y: "+Persona.getCalG()/1000 + " segundos");
             }
         });
         for (int i =0; numClientes>i; i++)

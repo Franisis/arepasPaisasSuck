@@ -36,16 +36,16 @@ public class Persona extends Thread {
     
     private long IcifrarConsulta;
     private long FcifrarConsulta;
-    private long TcifrarConsulta;
+    private static long TcifrarConsulta;
     private long IgenerarAut;
     private long FgenerarAut;
-    private long TgenerarAut;
+    private static long TgenerarAut;
     private long IverificaFirma;
     private long FverificaFirma;
-    private long TverificarFirma;
+    private static long TverificarFirma;
     private long IcalG;
     private long FcalG;
-    private long TcalG;
+    private static long TcalG;
     
     private SecurityFunctions sf;
     private CyclicBarrier cb;
@@ -54,6 +54,22 @@ public class Persona extends Thread {
     public Persona(int i,CyclicBarrier barrera) {
         this.idcliente = i;
         cb = barrera;
+    }
+
+    public static long getTcifrarConsulta(){
+        return TcifrarConsulta;
+    }
+
+    public static long getTgenerarAuth(){
+        return TgenerarAut;
+    }
+
+    public static long getTverificarFirma(){
+        return TverificarFirma;
+    }
+
+    public static long getCalG(){
+        return TcalG;
     }
 
     public PublicKey getPublicKey()
@@ -132,7 +148,7 @@ public class Persona extends Thread {
         IverificaFirma = System.currentTimeMillis();
         boolean verificacion1 = sf.checkSignature(receivedPublicKey, firma, esto);
         FverificaFirma = System.currentTimeMillis();
-        TverificarFirma = FverificaFirma-IverificaFirma;
+        TverificarFirma += FverificaFirma-IverificaFirma;
         
 
         if (verificacion1)
@@ -154,7 +170,7 @@ public class Persona extends Thread {
         IcalG = System.currentTimeMillis();
         String llaveComun = G2X(BigInteger.valueOf(gx), BigInteger.valueOf(idcliente), BigInteger.valueOf(p)).toString();
         FcalG = System.currentTimeMillis();
-        TcalG = FcalG - IcalG;
+        TcalG += FcalG - IcalG;
 
         SecretKey sk_srv = sf.csk1(llaveComun);
         SecretKey sk_mac = sf.csk2(llaveComun);
@@ -168,15 +184,15 @@ public class Persona extends Thread {
 
         //cifrar consulta
         IcifrarConsulta = System.currentTimeMillis();
-        byte[] consulta = sf.senc(num, sk_mac, ivSpec2, Integer.toString(idcliente));
+        byte[] consulta = sf.senc(num, sk_srv, ivSpec2, Integer.toString(idcliente));
         FcifrarConsulta = System.currentTimeMillis();
-        TcifrarConsulta = FcifrarConsulta - IcifrarConsulta;
+        TcifrarConsulta += FcifrarConsulta - IcifrarConsulta;
         
         //codigo de autenticacion
         IgenerarAut = System.currentTimeMillis();
         byte[] mac = sf.hmac(num, sk_mac);
         FgenerarAut = System.currentTimeMillis();
-        TgenerarAut = FgenerarAut - IgenerarAut;
+        TgenerarAut += FgenerarAut - IgenerarAut;
 
         String consult = byte2str(consulta);
         String hmac = byte2str(mac);
@@ -250,5 +266,7 @@ public class Persona extends Thread {
 	    new SecureRandom().nextBytes(iv);
 	    return iv;
 	}
+
+    
 
 }
