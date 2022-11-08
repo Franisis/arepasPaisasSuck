@@ -61,8 +61,8 @@ public class SrvThread extends Thread {
 
 	    try {
 
-			PrivateKey privadaServidor = f.read_kmin("C:/Users/hp/Documents/Repositorios/seg/arepasPaisasSuck-1/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pri",dlg);
-			PublicKey publicaServidor = f.read_kplus("C:/Users/hp/Documents/Repositorios/seg/arepasPaisasSuck-1/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub",dlg);
+			PrivateKey privadaServidor = f.read_kmin("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pri",dlg);
+			PublicKey publicaServidor = f.read_kplus("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub",dlg);
 			PrintWriter ac = new PrintWriter(sc.getOutputStream() , true);
 			BufferedReader dc = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 			

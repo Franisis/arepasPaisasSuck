@@ -51,9 +51,9 @@ public class Persona extends Thread {
     private CyclicBarrier cb;
     
 
-    public Persona(int i,CyclicBarrier barrera) {
+    public Persona(int i) {
         this.idcliente = i;
-        cb = barrera;
+        //cb = barrera;
         sf = new SecurityFunctions();
     }
 
@@ -128,9 +128,9 @@ public class Persona extends Thread {
     }
     
     
-    public void protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
+    public synchronized void  protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
         System.out.println("A punto de recibir la llave publica del servidor: ");
-    	receivedPublicKey = sf.read_kplus("C:/Users/hp/Documents/Repositorios/seg/arepasPaisasSuck-1/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub", "concurrent server " + idcliente + ": ");
+    	receivedPublicKey = sf.read_kplus("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub", "concurrent server " + idcliente + ": ");
         System.out.println(receivedPublicKey);
     	//Paso 1
         escritor.println("SECURE INIT");
@@ -228,8 +228,8 @@ public class Persona extends Thread {
             escritor.println("ERROR");
         }
 
-
-        cb.await();
+        System.out.println("Acá se traba esa vaina...");
+        //cb.await();
     }
 
     
