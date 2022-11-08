@@ -129,6 +129,8 @@ public class SecurityFunctions {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println(pubkey);
+		
 		return pubkey;
 	}
 	

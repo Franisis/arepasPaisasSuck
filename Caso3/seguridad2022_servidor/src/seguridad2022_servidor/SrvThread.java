@@ -61,14 +61,15 @@ public class SrvThread extends Thread {
 
 	    try {
 
-			PrivateKey privadaServidor = f.read_kmin("datos_asim_srv.pri",dlg);
-			PublicKey publicaServidor = f.read_kplus("datos_asim_srv.pub",dlg);
+			PrivateKey privadaServidor = f.read_kmin("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pri",dlg);
+			PublicKey publicaServidor = f.read_kplus("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub",dlg);
 			PrintWriter ac = new PrintWriter(sc.getOutputStream() , true);
 			BufferedReader dc = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 			
 			linea = dc.readLine();
 			System.out.println(dlg + "reading request: " + linea);
-    		
+    		System.out.println("Es la privada del servidor: "+privadaServidor);
+			System.out.println("Es la publica del servidor: "+publicaServidor);
     		generateGandP();
 			SecureRandom r = new SecureRandom();
 			int x = Math.abs(r.nextInt());
@@ -89,6 +90,7 @@ public class SrvThread extends Thread {
     		} else if (mod==1){
     			exito = opt1( str_valor_comun, ac, dc, bix, privadaServidor);
     		} else if (mod==2) {
+				System.out.println(privadaServidor);
     			exito = opt2( str_valor_comun, ac, dc, bix, privadaServidor);
 			}
 	        if (exito)
@@ -232,7 +234,7 @@ public class SrvThread extends Thread {
 		String str_authentication = byte2str(byte_authentication);
 		ac.println(str_authentication);
 		linea = dc.readLine();
-		
+		System.out.println(linea);
 		if (linea.compareTo("ERROR")==0) {
 			System.out.println("==========> Test 2a: failed (Server sends right signature).");
 			exito = false;
