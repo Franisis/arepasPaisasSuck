@@ -9,8 +9,6 @@ import java.util.concurrent.CyclicBarrier;
 
 public class MainEnvios {
 
-    public static ArrayList personas;
-    
 
     public static void main (String args[])
     {

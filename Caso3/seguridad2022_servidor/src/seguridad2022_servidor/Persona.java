@@ -36,16 +36,16 @@ public class Persona extends Thread {
     
     private long IcifrarConsulta;
     private long FcifrarConsulta;
-    private static long TcifrarConsulta;
+    private static long TcifrarConsulta = 0;
     private long IgenerarAut;
     private long FgenerarAut;
-    private static long TgenerarAut;
+    private static long TgenerarAut = 0;
     private long IverificaFirma;
     private long FverificaFirma;
-    private static long TverificarFirma;
+    private static long TverificarFirma = 0;
     private long IcalG;
     private long FcalG;
-    private static long TcalG;
+    private static long TcalG = 0;
     
     private SecurityFunctions sf;
     private CyclicBarrier cb;
@@ -54,6 +54,7 @@ public class Persona extends Thread {
     public Persona(int i,CyclicBarrier barrera) {
         this.idcliente = i;
         cb = barrera;
+        sf = new SecurityFunctions();
     }
 
     public static long getTcifrarConsulta(){
@@ -123,14 +124,13 @@ public class Persona extends Thread {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        imprimirTiempos();
+        
     }
     
     
     public void protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
-        wait();
         System.out.println("A punto de recibir la llave publica del servidor: ");
-    	receivedPublicKey = sf.read_kplus("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub", "concurrent server " + idcliente + ": ");
+    	receivedPublicKey = sf.read_kplus("C:/Users/hp/Documents/Repositorios/seg/arepasPaisasSuck-1/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub", "concurrent server " + idcliente + ": ");
         System.out.println(receivedPublicKey);
     	//Paso 1
         escritor.println("SECURE INIT");
@@ -139,11 +139,11 @@ public class Persona extends Thread {
 
     	//Paso 4
         String fs1 = lector.readLine();
-        int g = Integer.parseInt(fs1);
+        BigInteger g = new BigInteger(fs1);
         String fs2 = lector.readLine();
-        int p = Integer.parseInt(fs2);
+        BigInteger p = new BigInteger(fs2);
         String fs3 = lector.readLine();
-        int gx = Integer.parseInt(fs3);
+        BigInteger gx = new BigInteger(fs3);
 
         //Esto es la firma(?)
         String esto = lector.readLine();
@@ -151,7 +151,7 @@ public class Persona extends Thread {
         //Paso 5
         //verificacion de la firma
         IverificaFirma = System.currentTimeMillis();
-        boolean verificacion1 = sf.checkSignature(receivedPublicKey, firma, esto);
+        boolean verificacion1 = sf.checkSignature(receivedPublicKey, firma, g+","+p+","+gx);
         FverificaFirma = System.currentTimeMillis();
         TverificarFirma += FverificaFirma-IverificaFirma;
         
@@ -167,13 +167,13 @@ public class Persona extends Thread {
         
     
     	//Paso 6a
-    	String biCalculado = G2X(BigInteger.valueOf(g),BigInteger.valueOf(idcliente),BigInteger.valueOf(p)).toString();
+    	String biCalculado = G2X(g,BigInteger.valueOf(idcliente),p).toString();
         escritor.println(biCalculado);
 
         //Paso 7a 
         //calcular G de y
         IcalG = System.currentTimeMillis();
-        String llaveComun = G2X(BigInteger.valueOf(gx), BigInteger.valueOf(idcliente), BigInteger.valueOf(p)).toString();
+        String llaveComun = G2X(gx, BigInteger.valueOf(idcliente), p).toString();
         FcalG = System.currentTimeMillis();
         TcalG += FcalG - IcalG;
 
@@ -217,7 +217,7 @@ public class Persona extends Thread {
         byte[] byteRecibidoAchemak = str2byte(respAcheMak);
         byte[] byteRecibidoivRecibido = str2byte(ivRecibido);
         IvParameterSpec ivSpec1 = new IvParameterSpec(byteRecibidoivRecibido);
-        byte[] decifrado = sf.sdec(byteRecibidoConsulta, sk_mac, ivSpec1);
+        byte[] decifrado = sf.sdec(byteRecibidoConsulta, sk_srv, ivSpec1);
         boolean verificar = sf.checkInt( decifrado,sk_mac,byteRecibidoAchemak);
         //Paso 13
         if (verificar)
@@ -247,14 +247,6 @@ public class Persona extends Thread {
 		return ret;
 	}
 
-   public void imprimirTiempos(){
-    int id = this.idcliente;
-    System.out.println("El tiempo de cifrado de la consulta para el cliente de id: "+ id +"es: "+ TcifrarConsulta);
-    System.out.println("El tiempo para generar el codigo de autenticacion para el cliente de id: "+ id +"es: "+ TgenerarAut);
-    System.out.println("El tiempo para la verificacion de la firma para el cliente de id: "+ id +"es: "+ TverificarFirma);
-    System.out.println("El tiempo para calcular G^y para el cliente de id: "+ id +"es: "+ TcalG);
-
-   }
 
     public String byte2str( byte[] b )
 	{	
