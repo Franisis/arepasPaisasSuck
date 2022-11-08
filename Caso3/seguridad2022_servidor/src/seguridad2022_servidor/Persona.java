@@ -62,9 +62,9 @@ public class Persona extends Thread {
     	
     	
     	try {
-            System.out.println(socket);
+            
     		socket = new Socket(SERVIDOR,PUERTO);
-            System.out.println(socket);
+            System.out.println("Este es el socket: "+socket);
     		escritor = new PrintWriter(socket.getOutputStream(),true);
 			lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     	} catch (IOException e) {
@@ -100,11 +100,14 @@ public class Persona extends Thread {
     
     
     public void protocoloCliente(BufferedReader lector,PrintWriter escritor) throws Exception {
-    	receivedPublicKey = sf.read_kplus("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/bin/datos_asim_srv.pub", "concurrent server " + idcliente + ": ");
+        wait();
+        System.out.println("A punto de recibir la llave publica del servidor: ");
+    	receivedPublicKey = sf.read_kplus("D:/arepasPaisasSuck/Caso3/seguridad2022_servidor/src/seguridad2022_servidor/datos_asim_srv.pub", "concurrent server " + idcliente + ": ");
+        System.out.println(receivedPublicKey);
     	//Paso 1
         escritor.println("SECURE INIT");
     	
-        System.out.println(receivedPublicKey);
+        System.out.println("llave recibida: "+receivedPublicKey);
 
     	//Paso 4
         String fs1 = lector.readLine();
