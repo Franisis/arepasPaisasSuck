@@ -22,10 +22,10 @@ public class MainEnvios {
             @Override
             public void run(){
                 System.out.println("Todos los clientes terminaron su ejecuccion correctamente");
-                System.out.println("Tiempo gastado en cifrar las consultas: " +Persona.getTcifrarConsulta()/1000 + " segundos");
-                System.out.println("Tiempo gastado en generar codigos hmac: "+Persona.getTgenerarAuth()/1000 + " segundos");
-                System.out.println("Tiempo gastado en verificar firmas: "+Persona.getTverificarFirma()/1000 + " segundos");
-                System.out.println("Tiempo gastado en calcular G a la y: "+Persona.getCalG()/1000 + " segundos");
+                System.out.println("Tiempo gastado en cifrar las consultas: " +Persona.getTcifrarConsulta() + " milisegundos");
+                System.out.println("Tiempo gastado en generar codigos hmac: "+Persona.getTgenerarAuth() + " milisegundos");
+                System.out.println("Tiempo gastado en verificar firmas: "+Persona.getTverificarFirma() + " milisegundos");
+                System.out.println("Tiempo gastado en calcular G a la y: "+Persona.getCalG() + " milisegundos");
             }
         });
         for (int i =0; numClientes>i; i++)
